@@ -15,7 +15,12 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+.pytest_cache
+__pycache__
 
 # Serverless directories
 .serverless
 kindle-books-app
+serverless_sdk
+
+node_modules
