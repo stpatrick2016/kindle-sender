@@ -24,3 +24,4 @@ kindle-books-app
 serverless_sdk
 
 node_modules
+appConfig.local.json
