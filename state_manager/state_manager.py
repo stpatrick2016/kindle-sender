@@ -52,6 +52,7 @@ class StateManager:
             print("Creation completed successfully")
         except(Exception, psycopg2.DatabaseError) as error:
             print(f"Unable to create table: {error}")
+            raise error
         finally:
             if conn is not None:
                 conn.close()
