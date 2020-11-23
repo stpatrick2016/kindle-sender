@@ -12,10 +12,6 @@
 # Happy Coding!
 
 service: books
-# app and org for use with dashboard.serverless.com
-app: kindle-books-app
-org: saintpatricius
-
 configValidationMode: error
 
 # You can pin your service to only deploy with a specific Serverless version
