@@ -31,7 +31,17 @@ custom:
         - Ref: AWS::Region
         - Ref: AWS::AccountId
         - ${self:custom.topicName}
-
+  downloadQueueName: books-download-${self:custom.stage}
+  downloadQueueArn:
+    Fn::Join:
+      - ":"
+      - - arn
+        - aws
+        - sqs
+        - Ref: AWS::Region
+        - Ref: AWS::AccountId
+        - ${self:custom.downloadQueueName}
+  
 provider:
   name: aws
   runtime: python3.8
@@ -56,27 +66,6 @@ provider:
       Resource:
         - ${self:custom.topicArn}
 
-# you can add statements to the Lambda function's IAM Role here
-#  iamRoleStatements:
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:ListBucket"
-#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:PutObject"
-#      Resource:
-#        Fn::Join:
-#          - ""
-#          - - "arn:aws:s3:::"
-#            - "Ref" : "ServerlessDeploymentBucket"
-#            - "/*"
-
-# you can define service wide environment variables here
-#  environment:
-#    variable1: value1
-
-# you can add packaging information here
 package:
  exclude:
    - tests
@@ -85,9 +74,6 @@ package:
 functions:
   add_book:
     handler: handler.handle_add_book
-#    The following are a few example events you can configure
-#    NOTE: Please make sure to change your handler code to work with those events
-#    Check the event documentation for details
     events:
      - http:
          path: books
@@ -100,6 +86,12 @@ functions:
       DB_PASSWORD: ${self:custom.dbConnection.password}
       DB_ENGINE: postgres
       BOOKS_TOPIC: ${self:custom.topicArn}
+  download_book:
+    handler: handle_download_book
+    events:
+      - sqs: 
+          arn: 
+            !GetAtt downloadQueue.Arn
 
 # you can add CloudFormation resource templates here
 resources:
@@ -112,6 +104,25 @@ resources:
       Type: AWS::SNS::Topic
       Properties:
         TopicName: ${self:custom.topicName}
+    downloadDeadletterQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: ${self:custom.downloadQueueName}-deadletter
+        VisibilityTimeout: 300
+    downloadQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: ${self:custom.downloadQueueName}
+        VisibilityTimeout: 300
+        RedrivePolicy:
+          deadLetterTargetArn: !Join ["-", ["${self:custom.downloadQueueArn}", "deadletter"]]
+          maxReceiveCount: 3
+    downloadSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Protocol: sqs
+        Endpoint: ${self:custom.downloadQueueArn}
+        TopicArn: ${self:custom.topicArn}
 
 plugins:
   - serverless-python-requirements
