@@ -46,7 +46,6 @@ provider:
   name: aws
   runtime: python3.8
 
-# you can overwrite defaults here
   stage: ${self:custom.stage}
   region: ${opt:region, 'eu-central-1'}
 
@@ -93,7 +92,6 @@ functions:
           arn: 
             !GetAtt downloadQueue.Arn
 
-# you can add CloudFormation resource templates here
 resources:
   Resources:
     downloadsBucket:
