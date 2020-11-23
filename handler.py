@@ -23,6 +23,12 @@ def handle_add_book(event, context):
         "statusCode": 200
     }
 
+def handle_download_book(event, context):
+    print("Received download request...")
+
+    return {
+        "statusCode": 200
+    }
 
 def save_state(source: str, config: Configuration) -> Book:
     m = StateManager(config.get_connection_string())
