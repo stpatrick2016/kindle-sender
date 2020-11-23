@@ -13,9 +13,9 @@ class StateManager:
 
     def add_book(self, source: str) -> Book:
         book = Book.from_source(source)
-        self._create_books_table()
 
         if self._is_enabled:
+            self._create_books_table()
             conn = None
             try:
                 print(f"Adding books with source {book.source} to database")
