@@ -32,15 +32,6 @@ custom:
         - Ref: AWS::AccountId
         - ${self:custom.topicName}
   downloadQueueName: books-download-${self:custom.stage}
-  downloadQueueArn:
-    Fn::Join:
-      - ":"
-      - - arn
-        - aws
-        - sqs
-        - Ref: AWS::Region
-        - Ref: AWS::AccountId
-        - ${self:custom.downloadQueueName}
   
 provider:
   name: aws
@@ -63,7 +54,7 @@ provider:
       Action:
         - "sns:Publish"
       Resource:
-        - ${self:custom.topicArn}
+        !Ref booksTopic
 
 package:
  exclude:
@@ -113,14 +104,20 @@ resources:
         QueueName: ${self:custom.downloadQueueName}
         VisibilityTimeout: 300
         RedrivePolicy:
-          deadLetterTargetArn: !Join ["-", ["${self:custom.downloadQueueArn}", "deadletter"]]
+          deadLetterTargetArn:
+            Fn::GetAtt:
+              - downloadDeadletterQueue
+              - Arn
           maxReceiveCount: 3
     downloadSubscription:
       Type: AWS::SNS::Subscription
       Properties:
         Protocol: sqs
-        Endpoint: ${self:custom.downloadQueueArn}
-        TopicArn: ${self:custom.topicArn}
+        Endpoint: 
+          Fn::GetAtt: 
+            - downloadQueue
+            - Arn
+        TopicArn: !Ref booksTopic
 
 plugins:
   - serverless-python-requirements
