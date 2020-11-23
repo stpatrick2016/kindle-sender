@@ -81,13 +81,10 @@ provider:
 #    variable1: value1
 
 # you can add packaging information here
-#package:
-#  include:
-#    - include-me.py
-#    - include-me-dir/**
-#  exclude:
-#    - exclude-me.py
-#    - exclude-me-dir/**
+package:
+ exclude:
+   - tests
+   - appConfig.local.json
 
 functions:
   add_book:
@@ -122,3 +119,4 @@ resources:
 
 plugins:
   - serverless-python-requirements
+
