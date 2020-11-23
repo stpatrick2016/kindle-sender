@@ -6,9 +6,9 @@ phases:
     commands:
       - echo install step...
       # - set SLS_DEBUG=1
-      - pyenv install --skip-existing 3.8.6
-      - pyenv global 3.8.5
-      - pyenv virtualenv -p python3.8 3.8.6 venv
+      - pyenv install --skip-existing 3.83
+      - pyenv global 3.8.3
+      - pyenv virtualenv -p python3.8 3.8.3 venv
       - npm install
       - npm install -g serverless
       - serverless --version
