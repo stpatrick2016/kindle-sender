@@ -26,10 +26,8 @@ def handle_add_book(event, context):
 
 def save_state(source: str, config: Configuration) -> Book:
     m = StateManager(config.get_connection_string())
+    m.set_enabled(False)
     ret = m.add_book(source)
-    # delete 2 lines below when 2 lines above will work properly
-    # ret = Book.from_source(source)
-    # ret.id = 1
     print("Book added successfully")
     return ret
 
