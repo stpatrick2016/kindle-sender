@@ -66,27 +66,6 @@ provider:
       Resource:
         - ${self:custom.topicArn}
 
-# you can add statements to the Lambda function's IAM Role here
-#  iamRoleStatements:
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:ListBucket"
-#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:PutObject"
-#      Resource:
-#        Fn::Join:
-#          - ""
-#          - - "arn:aws:s3:::"
-#            - "Ref" : "ServerlessDeploymentBucket"
-#            - "/*"
-
-# you can define service wide environment variables here
-#  environment:
-#    variable1: value1
-
-# you can add packaging information here
 package:
  exclude:
    - tests
@@ -110,7 +89,9 @@ functions:
   download_book:
     handler: handle_download_book
     events:
-      - sqs: ${self:custom.downloadQueueArn}
+      - sqs: 
+          arn: 
+            !GetAtt downloadQueue.Arn
 
 # you can add CloudFormation resource templates here
 resources:
@@ -135,7 +116,6 @@ resources:
         VisibilityTimeout: 300
         RedrivePolicy:
           deadLetterTargetArn: !Join ["-", ["${self:custom.downloadQueueArn}", "deadletter"]]
-          # deadLetterTargetArn: {"Fn::Join": ["-", ["${self:custom.downloadQueueArn}", "deadletter"]]}
           maxReceiveCount: 3
     downloadSubscription:
       Type: AWS::SNS::Subscription

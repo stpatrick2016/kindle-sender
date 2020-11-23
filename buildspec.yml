@@ -5,6 +5,7 @@ phases:
         python: 3.8
     commands:
       - echo install step...
+      - SLS_DEBUG=*
       - pyenv install --skip-existing 3.8.3
       - pyenv global 3.8.3
       - pyenv virtualenv -p python3.8 3.8.3 venv
