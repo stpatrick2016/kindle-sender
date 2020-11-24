@@ -118,6 +118,36 @@ resources:
             - downloadQueue
             - Arn
         TopicArn: !Ref booksTopic
+    downloadQueuePolicy:
+      Type: AWS::SQS::QueuePolicy
+      Properties:
+        Queues:
+          - !Ref downloadQueue
+        PolicyDocument:
+          Statement:
+            -
+              Action:
+                - "SQS:SendMessage"
+              Effect: "Allow"
+              Resource: !Ref downloadQueue
+              Principal:
+                Service:
+                  - "sns.amazonaws.com" 
+    downloadErrorQueuePolicy:
+      Type: AWS::SQS::QueuePolicy
+      Properties:
+        Queues:
+          - !Ref downloadDeadletterQueue
+        PolicyDocument:
+          Statement:
+            -
+              Action:
+                - "SQS:SendMessage"
+              Effect: "Allow"
+              Resource: !Ref downloadDeadletterQueue
+              Principal:
+                Service:
+                  - "sns.amazonaws.com" 
 
 plugins:
   - serverless-python-requirements
