@@ -77,7 +77,7 @@ functions:
       DB_ENGINE: postgres
       BOOKS_TOPIC: ${self:custom.topicArn}
   download_book:
-    handler: handle_download_book
+    handler: handler.handle_download_book
     events:
       - sqs: 
           arn: 
