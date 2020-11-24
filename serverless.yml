@@ -128,11 +128,18 @@ resources:
             -
               Action:
                 - "SQS:SendMessage"
+                - "SQS:GetQueueAttributes"
               Effect: "Allow"
-              Resource: !Ref downloadQueue
+              Resource:
+                Fn::GetAtt:
+                 - downloadQueue
+                 - Arn
               Principal:
                 Service:
                   - "sns.amazonaws.com" 
+              Condition:
+                ArnEquals:
+                  aws:SourceArn: !Ref booksTopic
     downloadErrorQueuePolicy:
       Type: AWS::SQS::QueuePolicy
       Properties:
@@ -143,11 +150,18 @@ resources:
             -
               Action:
                 - "SQS:SendMessage"
+                - "SQS:GetQueueAttributes"
               Effect: "Allow"
-              Resource: !Ref downloadDeadletterQueue
+              Resource:
+                Fn::GetAtt:
+                  - downloadDeadletterQueue
+                  - Arn
               Principal:
                 Service:
                   - "sns.amazonaws.com" 
+              Condition:
+                ArnEquals:
+                  aws:SourceArn: !Ref booksTopic
 
 plugins:
   - serverless-python-requirements
