@@ -22,8 +22,8 @@ class StateManager:
                 conn = psycopg2.connect(self._connection)
                 cur = conn.cursor()
 
-                sql = "insert into (books) values (%%s, %%s) returning id"
-                cur.execute(sql, (book.state, book.source))
+                sql = "insert into books(state, source) values %s returning id"
+                cur.execute(sql, [(book.state, book.source)])
                 book.id = cur.fetchone()[0]
                 conn.commit()
                 cur.close()
