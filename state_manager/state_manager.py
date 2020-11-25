@@ -2,19 +2,17 @@ import psycopg2
 
 from .models import Book
 from common.definitions.enums import BookState
+from common.configuration import Configuration
 
 class StateManager:
     def __init__(self, connection: str):
         self._connection = connection
-        self._is_enabled = True
-
-    def set_enabled(self, is_enabled: bool):
-        self._is_enabled = is_enabled
+        self._config = Configuration()
 
     def add_book(self, source: str) -> Book:
         book = Book.from_source(source)
 
-        if self._is_enabled:
+        if self._config.persistency_enabled:
             self._create_books_table()
             conn = None
             try:
