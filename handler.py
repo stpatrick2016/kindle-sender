@@ -32,7 +32,6 @@ def handle_download_book(event, context):
 
 def save_state(source: str, config: Configuration) -> Book:
     m = StateManager(config.get_connection_string())
-    m.set_enabled(False)
     ret = m.add_book(source)
     print("Book added successfully")
     return ret

@@ -25,3 +25,4 @@ serverless_sdk
 
 node_modules
 appConfig.local.json
+.vscode

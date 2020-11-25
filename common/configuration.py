@@ -11,6 +11,7 @@ class Configuration:
     db_name: str
     db_engine: str
     topic_books: str
+    persistency_enabled: bool
 
     def __init__(self):
         self.db_host = os.environ.get("DB_HOST")
@@ -19,6 +20,7 @@ class Configuration:
         self.db_engine = "postgres"
         self.db_name = os.environ.get("DB_NAME")
         self.topic_books = os.environ.get("BOOKS_TOPIC")
+        self.persistency_enabled = os.environ.get("PERSISTENCY_ENABLED") == "1"
 
     def get_connection_string(self) -> str:
         return f"postgresql://{self.db_user}:{self.db_password}@{self.db_host}/{self.db_name}"
@@ -37,4 +39,5 @@ class LocalConfiguration(Configuration):
                 self.db_engine = config.get("DB_ENGINE") or self.db_engine
                 self.db_name = config.get("DB_NAME") or self.db_name
                 self.topic_books = config.get("BOOKS_TOPIC") or self.topic_books
+                self.persistency_enabled = config.get("PERSISTENCY_ENABLED") == "1" or self.persistency_enabled
 
