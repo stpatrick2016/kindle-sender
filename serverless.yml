@@ -20,7 +20,7 @@ frameworkVersion: '2'
 
 custom:
   stage: ${opt:stage, 'dev'}
-  dbConnection: ${ssm:/aws/reference/secretsmanager/books/dev/db~true}
+  # dbConnection: ${ssm:/aws/reference/secretsmanager/books/dev/db~true}
   topicName: books-${self:custom.stage}
   topicArn:
     Fn::Join:
@@ -56,6 +56,15 @@ provider:
       Resource:
         !Ref booksTopic
 
+  environment:
+  # disabled for now
+  # DB_HOST: ${self:custom.dbConnection.host}
+  # DB_NAME: ${self:custom.dbConnection.dbname}
+  # DB_USER: ${self:custom.dbConnection.username}
+  # DB_PASSWORD: ${self:custom.dbConnection.password}
+  # DB_ENGINE: postgres
+    BOOKS_TOPIC: ${self:custom.topicArn}
+
 package:
  exclude:
    - tests
@@ -69,13 +78,6 @@ functions:
          path: books
          method: post
          private: true
-    environment:
-      DB_HOST: ${self:custom.dbConnection.host}
-      DB_NAME: ${self:custom.dbConnection.dbname}
-      DB_USER: ${self:custom.dbConnection.username}
-      DB_PASSWORD: ${self:custom.dbConnection.password}
-      DB_ENGINE: postgres
-      BOOKS_TOPIC: ${self:custom.topicArn}
   download_book:
     handler: handler.handle_download_book
     events:
