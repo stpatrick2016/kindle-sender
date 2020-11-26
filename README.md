@@ -2,7 +2,10 @@
 
 [![Build status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiZ0RQdTZVRS8raHZxZjdpbnlvbkJKamQvNHdQaVRUYnpCQjgvUTZsNUNKb1R6NEx2RUZ0VW04bGJkdzd1Nlc0LzNaY3FGTFZLbVV6VEtNN1dWUXpCWWRBPSIsIml2UGFyYW1ldGVyU3BlYyI6IkROT3VMTmdOQWd0aUkzWE0iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=main)](https://eu-central-1.console.aws.amazon.com/codesuite/codebuild/238645272082/projects/kindle-books-release/history?region=eu-central-1)
 
-The purpose of this **overengineered** project is to learn AWS and Python, nothing more. The following technologies and languages were used during development:
+### Goal
+The purpose of this **overengineered** project is to learn AWS and Python, nothing more. For that, I took a little practical idea of having an ability to send a book from [unnamed] site straight to my kindle and converted it to huge learning project.
+
+The following technologies and languages were used during development:
 * [Python](https://www.python.org)
 * [AWS](https://aws.amazon.com), specifically:
   * [Lambda](https://aws.amazon.com/lambda)
