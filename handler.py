@@ -28,14 +28,16 @@ def handle_add_book(event, context):
 
 async def handle_download_book(event, context):
     print("Received download request...")
-    book: Book = jsonpickle.decode(event["body"])
+    print(json.dumps(event))
+    for record in event["Records"]:
+        book: Book = jsonpickle.decode(record["body"])
 
-    downloader = Downloader.factory(config.file_storage)
-    await downloader.download(book.source, f"{config.file_prefix}-{book.id}")
+        downloader = Downloader.factory(config.file_storage)
+        await downloader.download(book.source, f"{config.file_prefix}-{book.id}")
 
-    sm = StateManager(config.get_connection_string())
-    book = sm.mark_downloaded(book)
-    #send_to_queue(book, config)
+        sm = StateManager(config.get_connection_string())
+        book = sm.mark_downloaded(book)
+        #send_to_queue(book, config)
 
     return {
         "statusCode": 200
@@ -84,7 +86,11 @@ if __name__ == "__main__":
         elif selection == "2":
             book = Book(1, "new", "http://flibusta.is/b/369935/mobi")
             ev = {
-                "body": jsonpickle.encode(book)
+                "Records":[
+                    {
+                        "body": jsonpickle.encode(book)
+                    }
+                ]
             }
             loop.run_until_complete(handle_download_book(ev, None))
     loop.close()

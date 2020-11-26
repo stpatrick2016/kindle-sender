@@ -101,12 +101,12 @@ resources:
       Type: AWS::SQS::Queue
       Properties:
         QueueName: ${self:custom.downloadQueueName}-deadletter
-        VisibilityTimeout: 300
+        VisibilityTimeout: 120
     downloadQueue:
       Type: AWS::SQS::Queue
       Properties:
         QueueName: ${self:custom.downloadQueueName}
-        VisibilityTimeout: 300
+        VisibilityTimeout: 120
         RedrivePolicy:
           deadLetterTargetArn:
             Fn::GetAtt:
