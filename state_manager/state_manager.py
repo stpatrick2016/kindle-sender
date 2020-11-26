@@ -1,4 +1,5 @@
 import psycopg2
+import time
 
 from .models import Book
 from common.definitions.enums import BookState
@@ -11,6 +12,7 @@ class StateManager:
 
     def add_book(self, source: str) -> Book:
         book = Book.from_source(source)
+        book.id = round(time.time())
 
         if self._config.persistency_enabled:
             self._create_books_table()
