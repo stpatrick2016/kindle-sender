@@ -3,3 +3,5 @@ botocore
 psycopg2
 psycopg2-binary
 jsonpickle
+aiohttp
+arnparse

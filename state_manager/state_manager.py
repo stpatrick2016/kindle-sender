@@ -36,6 +36,31 @@ class StateManager:
             print("Saving state is disabled")
         
         return book
+    
+    def mark_downloaded(self, book: Book) -> Book:
+        book.state = BookState.downloaded
+
+        if self._config.persistency_enabled:
+            conn = None
+            try:
+                print(f"Marking book {book.id} as downloaded")
+                conn = psycopg2.connect(self._connection)
+                cur = conn.cursor()
+
+                sql = "update books set state = %s where id = %s"
+                cur.execute(sql, [(book.state, book.id)])
+                print(f"Updates {cur.rowcount} rows")
+                conn.commit()
+                cur.close()
+                print("Books was added successfully")
+            except(Exception, psycopg2.DatabaseError) as error:
+                print(f"Failed to add book: {error}")
+                raise error
+            finally:
+                if conn is not None:
+                    conn.close()
+
+        return book
 
     def _create_books_table(self):
         command = """

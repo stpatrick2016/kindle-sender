@@ -1,15 +1,5 @@
-# Welcome to Serverless!
-#
-# This file is the main config file for your service.
-# It's very minimal at this point and uses default values.
-# You can always add more config options for more control.
-# We've included some commented out config examples here.
-# Just uncomment any of them to get that config option.
-#
 # For full config options, check the docs:
 #    docs.serverless.com
-#
-# Happy Coding!
 
 service: books
 configValidationMode: error
@@ -21,6 +11,7 @@ frameworkVersion: '2'
 custom:
   stage: ${opt:stage, 'dev'}
   # dbConnection: ${ssm:/aws/reference/secretsmanager/books/dev/db~true}
+  tempBookPrefix: temp
   topicName: books-${self:custom.stage}
   topicArn:
     Fn::Join:
@@ -50,11 +41,19 @@ provider:
     - name: test1
 
   iamRoleStatements:
-    - Effect: "Allow"
+    - Effect: Allow
       Action:
-        - "sns:Publish"
+        - sns:Publish
       Resource:
         !Ref booksTopic
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:PutObjectAcl
+        - s3:DeleteObject
+        - s3:GetObject
+      Resource:
+        !GetAtt storage.Arn
 
   environment:
   # disabled for now
@@ -80,6 +79,9 @@ functions:
          private: true
   download_book:
     handler: handler.handle_download_book
+    environment:
+      FILE_PREFIX: ${self:custom.tempBookPrefix}
+      FILE_STORAGE: !GetAtt storage.Arn
     events:
       - sqs: 
           arn: 
@@ -120,6 +122,9 @@ resources:
             - downloadQueue
             - Arn
         TopicArn: !Ref booksTopic
+        FilterPolicy: 
+          state:
+            - new
     downloadQueuePolicy:
       Type: AWS::SQS::QueuePolicy
       Properties:
@@ -164,6 +169,18 @@ resources:
               Condition:
                 ArnEquals:
                   aws:SourceArn: !Ref booksTopic
+    storage:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: books-download-${self:custom.stage}
+        AccessControl: Private
+        LifecycleConfiguration:
+          Rules:
+            - Id: TempBooks
+              Prefix: ${self:custom.tempBookPrefix}
+              Status: Enabled
+              ExpirationInDays: "2"
+              
 
 plugins:
   - serverless-python-requirements
