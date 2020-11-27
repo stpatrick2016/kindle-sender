@@ -36,7 +36,9 @@ class Truck:
         self._dest = destination
 
     async def deliver(self, cargo: Cargo):
+        print("Loading cargo...")
         await self._source.load(cargo)
+        print("Unloading cargo...")
         await self._dest.unload(cargo)
 
 class GroundedCargo(Cargo):

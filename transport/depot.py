@@ -1,8 +1,9 @@
 from arnparse import arnparse
 
 from .truck import Cargo, Source, Destination, Truck, GroundedCargo
-from .s3_store import S3Destination
+from .s3_store import S3Destination, S3Source
 from .http_store import HttpSource
+from .smtp_store import SmtpDestination
 
 class Depot:
     def __init__(self, cargo: Cargo, source: Source, destination: Destination):
@@ -11,6 +12,7 @@ class Depot:
         self._dest = destination
 
     async def dispatch(self):
+        print("Dispatching truck...")
         truck = Truck(self._source, self._dest)
         await truck.deliver(self._cargo)
 
@@ -21,4 +23,13 @@ class Depot:
         if bucket.startswith("arn:aws:s3"):
             bucket = arnparse(bucket).resource
         dest = S3Destination(bucket, filename)
+        return cls(cargo, source, dest)
+
+    @classmethod
+    def from_s3_to_mail(cls, bucket: str, filename: str, address: str, server: str, port: int, user: str, password: str):
+        if bucket.startswith("arn:aws:s3"):
+            bucket = arnparse(bucket).resource
+        cargo = GroundedCargo()
+        source = S3Source(bucket, filename)
+        dest = SmtpDestination(address, server, port, user, password)
         return cls(cargo, source, dest)

@@ -9,6 +9,7 @@ class HttpSource(Source):
         self._url = url
 
     async def load(self, cargo: Cargo):
+        print(f"Downloading file from {self._url}")
         async with aiohttp.ClientSession() as session:
             async with session.get(self._url) as response:
                 with cargo.fill() as f:

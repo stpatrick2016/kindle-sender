@@ -9,6 +9,7 @@ class Book:
     id: int
     state: BookState
     source: str
+    target: str
 
     @classmethod
     def from_source(cls, source: str):
@@ -20,5 +21,5 @@ class Book:
 
     @classmethod
     def from_json(cls, data: str):
-        return json.loads(data, object_hook=lambda d: SimpleNamespace(**d))
+        return json.loads(data, object_hook=lambda d: Book(**d))
         
