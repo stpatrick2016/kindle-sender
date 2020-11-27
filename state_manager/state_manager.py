@@ -10,8 +10,8 @@ class StateManager:
         self._connection = connection
         self._config = Configuration()
 
-    def add_book(self, source: str) -> Book:
-        book = Book.from_source(source)
+    def add_book(self, source: str, target: str) -> Book:
+        book = Book.from_source(source, target)
         book.id = round(time.time())
 
         if self._config.persistency_enabled:
@@ -40,8 +40,18 @@ class StateManager:
         return book
     
     def mark_downloaded(self, book: Book) -> Book:
+        print("Updating book status to downloaded")
         book.state = BookState.downloaded
+        self._save_book_in_db(book)
+        return book
 
+    def mark_done(self, book: Book) -> Book:
+        print("Updating book status to done")
+        book.state = BookState.done
+        self._save_book_in_db(book)
+        return book
+
+    def _save_book_in_db(self, book: Book):
         if self._config.persistency_enabled:
             conn = None
             try:
@@ -62,7 +72,6 @@ class StateManager:
                 if conn is not None:
                     conn.close()
 
-        return book
 
     def _create_books_table(self):
         command = """

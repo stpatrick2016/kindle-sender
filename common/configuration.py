@@ -14,6 +14,10 @@ class Configuration:
     persistency_enabled: bool
     file_prefix: str
     file_storage: str
+    smtp_server: str
+    smtp_port: int
+    smtp_user: str
+    smtp_password: str
 
     def __init__(self):
         self.db_host = os.environ.get("DB_HOST")
@@ -25,6 +29,10 @@ class Configuration:
         self.persistency_enabled = os.environ.get("PERSISTENCY_ENABLED") == "1"
         self.file_prefix = os.environ.get("FILE_PREFIX") or "temp"
         self.file_storage = os.environ.get("FILE_STORAGE")
+        self.smtp_server = os.environ.get("SMTP_SERVER")
+        self.smtp_port = int(os.environ.get("SMTP_PORT") or 0) or 465
+        self.smtp_user = os.environ.get("SMTP_USER")
+        self.smtp_password = os.environ.get("SMTP_PASSWORD")
 
     def get_connection_string(self) -> str:
         return f"postgresql://{self.db_user}:{self.db_password}@{self.db_host}/{self.db_name}"
@@ -46,4 +54,8 @@ class LocalConfiguration(Configuration):
                 self.persistency_enabled = config.get("PERSISTENCY_ENABLED") == "1" or self.persistency_enabled
                 self.file_prefix = config.get("FILE_PREFIX") or self.file_prefix
                 self.file_storage = config.get("FILE_STORAGE") or self.file_storage
+                self.smtp_server = config.get("SMTP_SERVER") or self.smtp_server
+                self.smtp_port = int(config.get("SMTP_PORT") or 0) or self.smtp_port
+                self.smtp_user = config.get("SMTP_USER") or self.smtp_user
+                self.smtp_password = config.get("SMTP_PASSWORD") or self.smtp_password
 

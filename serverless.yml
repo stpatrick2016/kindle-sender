@@ -11,6 +11,7 @@ frameworkVersion: '2'
 custom:
   stage: ${opt:stage, 'dev'}
   # dbConnection: ${ssm:/aws/reference/secretsmanager/books/dev/db~true}
+  smtp: ${ssm:/aws/reference/secretsmanager/books/dev/smtp~true}
   tempBookPrefix: temp
   topicName: books-${self:custom.stage}
   topicArn:
@@ -23,6 +24,7 @@ custom:
         - Ref: AWS::AccountId
         - ${self:custom.topicName}
   downloadQueueName: books-download-${self:custom.stage}
+  sendQueueName: books-send-${self:custom.stage}
   
 provider:
   name: aws
@@ -86,6 +88,18 @@ functions:
       - sqs: 
           arn: 
             !GetAtt downloadQueue.Arn
+  send_book:
+    handler: handler.handle_send_book
+    environment:
+      SMTP_SERVER: ${self:custom.smtp.server}
+      SMTP_USER: ${self:custom.smtp.username}
+      SMTP_PASSWORD: ${self:custom.smtp.password}
+      SMTP_PORT: ${self:custom.smtp.port}
+      FILE_STORAGE: !GetAtt storage.Arn
+    events:
+      - sqs:
+          arn:
+            !GetAtt sendQueue.Arn
 
 resources:
   Resources:
@@ -97,10 +111,11 @@ resources:
       Type: AWS::SNS::Topic
       Properties:
         TopicName: ${self:custom.topicName}
+
     downloadDeadletterQueue:
       Type: AWS::SQS::Queue
       Properties:
-        QueueName: ${self:custom.downloadQueueName}-deadletter
+        QueueName: ${self:custom.downloadQueueName}-error
         VisibilityTimeout: 120
     downloadQueue:
       Type: AWS::SQS::Queue
@@ -113,6 +128,7 @@ resources:
               - downloadDeadletterQueue
               - Arn
           maxReceiveCount: 3
+
     downloadSubscription:
       Type: AWS::SNS::Subscription
       Properties:
@@ -137,10 +153,7 @@ resources:
                 - "SQS:SendMessage"
                 - "SQS:GetQueueAttributes"
               Effect: "Allow"
-              Resource:
-                Fn::GetAtt:
-                 - downloadQueue
-                 - Arn
+              Resource: !GetAtt downloadQueue.Arn
               Principal:
                 Service:
                   - "sns.amazonaws.com" 
@@ -159,16 +172,75 @@ resources:
                 - "SQS:SendMessage"
                 - "SQS:GetQueueAttributes"
               Effect: "Allow"
-              Resource:
-                Fn::GetAtt:
-                  - downloadDeadletterQueue
-                  - Arn
+              Resource: !GetAtt downloadDeadletterQueue.Arn
               Principal:
                 Service:
                   - "sns.amazonaws.com" 
               Condition:
                 ArnEquals:
                   aws:SourceArn: !Ref booksTopic
+
+    sendQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: ${self:custom.sendQueueName}
+        VisibilityTimeout: 60
+        RedrivePolicy:
+          deadLetterTargetArn: !GetAtt sendErrorQueue.Arn
+          maxReceiveCount: 3
+    sendErrorQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: ${self:custom.sendQueueName}-error
+        VisibilityTimeout: 60
+    sendSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Protocol: sqs
+        Endpoint: !GetAtt sendQueue.Arn
+        TopicArn: !Ref booksTopic
+        FilterPolicy:
+          state:
+            - downloaded
+    sendQueuePolicy:
+      Type: AWS::SQS::QueuePolicy
+      Properties:
+        Queues:
+          - !Ref sendQueue
+        PolicyDocument:
+          Statement:
+            -
+              Action:
+                - "SQS:SendMessage"
+                - "SQS:GetQueueAttributes"
+              Effect: Allow
+              Resource: !GetAtt sendQueue.Arn
+              Principal:
+                Service:
+                  - "sns.amazonaws.com"
+              Condition:
+                ArnEquals:
+                  aws:SourceArn: !Ref booksTopic
+    sendErrorQueuePolicy:
+      Type: AWS::SQS::QueuePolicy
+      Properties:
+        Queues:
+          - !Ref sendErrorQueue
+        PolicyDocument:
+          Statement:
+            -
+              Action:
+                - "SQS:SendMessage"
+                - "SQS:GetQueueAttributes"
+              Effect: Allow
+              Resource: !GetAtt sendErrorQueue.Arn
+              Principal:
+                Service:
+                  - "sns.amazonaws.com"
+              Condition:
+                ArnEquals:
+                  aws:SourceArn: !Ref booksTopic
+
     storage:
       Type: AWS::S3::Bucket
       Properties:
