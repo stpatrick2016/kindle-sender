@@ -4,10 +4,10 @@ import boto3
 import asyncio
 
 from state_manager.state_manager import StateManager
-from state_manager.models import Book
+from state_manager.models import Book, BookState
 from common.configuration import LocalConfiguration, Configuration
-from downloader.downloader import Downloader
 from sourcerer.parser import SourceParser
+from transport.depot import Depot
 
 config = LocalConfiguration()
 
@@ -28,21 +28,34 @@ def handle_add_book(event, context):
 def handle_download_book(event, context):
     print("Received download request...")
     loop = asyncio.get_event_loop()
-    print(json.dumps(event))
     for record in event["Records"]:
         body = json.loads(record["body"])
         book: Book = Book.from_json(body["Message"])
+        if book.state == BookState.new:
+            depot = Depot.from_http_to_s3(book.source, config.file_storage, f"{config.file_prefix}-{book.id}.mobi")
+            loop.run_until_complete(depot.dispatch())
+            book.source = config.file_storage + "/" + f"{config.file_prefix}-{book.id}.mobi"
 
-        downloader = Downloader.factory(config.file_storage)
-        loop.run_until_complete(downloader.download(book.source, f"{config.file_prefix}-{book.id}"))
+            sm = StateManager(config.get_connection_string())
+            book = sm.mark_downloaded(book)
+            send_to_queue(book, config)
+        else:
+            print(f"Ignoring book with state {book.state}")
 
-        sm = StateManager(config.get_connection_string())
-        book = sm.mark_downloaded(book)
-        #send_to_queue(book, config)
-
+    loop.close()
     return {
         "statusCode": 200
     }
+
+def handle_send_book(event, context):
+    print("Reseved book to send")
+    for record in event["Records"]:
+        body = json.loads(record["body"])
+        book: Book = Book.from_json(body["Message"])
+        if book.state == BookState.downloaded:
+            pass
+        else:
+            print(f"Ignoring book with incompatible state: {book.state}")
 
 def add_book(source: str, config: Configuration) -> Book:
     m = StateManager(config.get_connection_string())
