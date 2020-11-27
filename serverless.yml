@@ -179,7 +179,7 @@ resources:
             - Id: TempBooks
               Prefix: ${self:custom.tempBookPrefix}
               Status: Enabled
-              ExpirationInDays: "2"
+              ExpirationInDays: "1"
               
 
 plugins:
