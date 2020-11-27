@@ -1,5 +1,5 @@
 import os
-import jsonpickle
+import json
 
 from .utils import get_project_root
 
@@ -35,7 +35,7 @@ class LocalConfiguration(Configuration):
         configFile = os.path.join(get_project_root(), "appConfig.local.json")
         if os.path.isfile(configFile):
             with open(configFile, "r") as f:
-                config = jsonpickle.decode(f.read())
+                config = json.loads(f.read())
 
                 self.db_host = config.get("DB_HOST") or self.db_host
                 self.db_user = config.get("DB_USER") or self.db_user

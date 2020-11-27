@@ -1,5 +1,4 @@
 import json
-import jsonpickle
 import os
 import boto3
 import asyncio
@@ -31,7 +30,7 @@ def handle_download_book(event, context):
     loop = asyncio.get_event_loop()
     print(json.dumps(event))
     for record in event["Records"]:
-        book: Book = jsonpickle.decode(record["body"])
+        book: Book = Book.from_json(record["body"])
 
         downloader = Downloader.factory(config.file_storage)
         loop.run_until_complete(downloader.download(book.source, f"{config.file_prefix}-{book.id}"))
@@ -58,7 +57,7 @@ def send_to_queue(book: Book, config: Configuration):
     sns.publish(
         TopicArn=topic,
         Subject="book",
-        Message=jsonpickle.encode(book),
+        Message=book.to_json(),
         MessageAttributes={
             "state": {
                 "DataType": "String",
@@ -89,7 +88,7 @@ if __name__ == "__main__":
             ev = {
                 "Records":[
                     {
-                        "body": jsonpickle.encode(book)
+                        "body": book.to_json()
                     }
                 ]
             }
