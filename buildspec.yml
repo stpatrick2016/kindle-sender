@@ -20,9 +20,9 @@ phases:
   post_build:
     commands:
       - echo Finished
-  reports:
-    pytest_reports:
-      files:
-        - report.xml
-      base-directory: tests
-      file-format: JUNITXML
+reports:
+  pytest_reports:
+    files:
+      - report.xml
+    base-directory: tests
+    file-format: JUNITXML
