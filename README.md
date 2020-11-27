@@ -18,3 +18,13 @@ The following technologies and languages were used during development:
   * [SNS](https://aws.amazon.com/sns) (Simple Notifications Service)
   * [SQS](https://aws.amazon.com/sqs) (Simple Queue Service)
 * [Serverless](https://www.serverless.com)
+
+### Architecture
+The solution consists of:
+* Lambda triggered by API Gateway with POST to /books, which accepts JSON payload with which book to download and where to send it.
+* Lambda that listens on queue, downloads a book and stores it on S3
+* Lambda that listens on queue, and sends a book as attachment to mail address using SMTP server
+* [Optional] PostgreSQL database that stores current state
+* [Not implemented] Browser plugin that sends links to /books and initiates the whole process
+
+![Architecture](doc/architecture.png)
