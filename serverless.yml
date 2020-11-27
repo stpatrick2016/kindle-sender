@@ -95,6 +95,7 @@ functions:
       SMTP_USER: ${self:custom.smtp.username}
       SMTP_PASSWORD: ${self:custom.smtp.password}
       SMTP_PORT: ${self:custom.smtp.port}
+      FILE_STORAGE: !GetAtt storage.Arn
     events:
       - sqs:
           arn:
