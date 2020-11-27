@@ -11,9 +11,8 @@ class StateManager:
         self._config = Configuration()
 
     def add_book(self, source: str, target: str) -> Book:
-        book = Book.from_source(source)
+        book = Book.from_source(source, target)
         book.id = round(time.time())
-        book.target = target
 
         if self._config.persistency_enabled:
             self._create_books_table()
