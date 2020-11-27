@@ -12,9 +12,17 @@ phases:
       - npm install
       - npm install -g serverless
       - serverless --version
+      - pip3 install pytest
   build:
     commands:
+      - python -m pytest --junitxml=tests/report.xml
       - serverless deploy -v --stage=dev
   post_build:
     commands:
       - echo Finished
+reports:
+  pytest_reports:
+    files:
+      - report.xml
+    base-directory: tests
+    file-format: JUNITXML
