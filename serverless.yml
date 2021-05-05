@@ -79,6 +79,7 @@ functions:
          path: books
          method: post
          private: true
+         cors: true
   download_book:
     handler: handler.handle_download_book
     environment:
