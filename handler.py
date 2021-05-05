@@ -11,6 +11,7 @@ from transport.depot import Depot
 
 config = LocalConfiguration()
 
+
 def handle_add_book(event, context):
     print("Received new book request, starting to process...")
     body = json.loads(event["body"])
@@ -23,8 +24,14 @@ def handle_add_book(event, context):
     send_to_queue(book, config)
 
     return {
-        "statusCode": 200
+        "statusCode": 200,
+        "headers": {
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Origin": "http://flibusta.is",
+            "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
+        }
     }
+
 
 def handle_download_book(event, context):
     print("Received download request...")
@@ -45,6 +52,7 @@ def handle_download_book(event, context):
     return {
         "statusCode": 200
     }
+
 
 def handle_send_book(event, context):
     print("Reseved book to send")
@@ -68,6 +76,7 @@ def handle_send_book(event, context):
             send_to_queue(book, config)
         else:
             print(f"Ignoring book with incompatible state: {book.state}")
+
 
 def add_book(source: str, target: str, config: Configuration) -> Book:
     m = StateManager(config.get_connection_string())
@@ -93,18 +102,20 @@ def send_to_queue(book: Book, config: Configuration):
         }
     )
 
+
 def simulateSqsMessage(book: Book) -> dict:
     body = {
         "Message": book.to_json()
     }
     ev = {
-        "Records":[
+        "Records": [
             {
                 "body": json.dumps(body)
             }
         ]
     }
     return ev
+
 
 if __name__ == "__main__":
 
@@ -128,6 +139,7 @@ if __name__ == "__main__":
             ev = simulateSqsMessage(book)
             handle_download_book(ev, None)
         elif selection == "3":
-            book = Book(1, BookState.downloaded, "arn:aws:s3:::books-download-dev/book.mobi", "saint.patricius@gmail.com")
+            book = Book(1, BookState.downloaded, "arn:aws:s3:::books-download-dev/book.mobi",
+                        "saint.patricius@gmail.com")
             ev = simulateSqsMessage(book)
             handle_send_book(ev, None)

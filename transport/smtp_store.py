@@ -8,19 +8,21 @@ from email.mime.multipart import MIMEMultipart
 
 from .truck import Cargo, Destination
 
+
 class SmtpDestination(Destination):
     def __init__(self, address: str, server: str, port: int, user: str, password: str):
         Smtp = collections.namedtuple("Smtp", "server port user password")
         self._smtp = Smtp(
-            server = server,
-            port = port,
-            user = user,
-            password = password
+            server=server,
+            port=port,
+            user=user,
+            password=password
         )
         self._address = address
 
     async def unload(self, cargo: Cargo):
-        print(f"Sending email to {self._address} via {self._smtp.server}:{self._smtp.port} using user {self._smtp.user}")
+        print(
+            f"Sending email to {self._address} via {self._smtp.server}:{self._smtp.port} using user {self._smtp.user}")
         message = MIMEMultipart()
         message["From"] = self._smtp.user
         message["To"] = self._address
