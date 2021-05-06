@@ -3,6 +3,7 @@
 
 service: books
 configValidationMode: error
+variablesResolutionMode: 20210326
 
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
@@ -10,8 +11,8 @@ frameworkVersion: '2'
 
 custom:
   stage: ${opt:stage, 'dev'}
-  # dbConnection: ${ssm:/aws/reference/secretsmanager/books/dev/db~true}
-  smtp: ${ssm:/aws/reference/secretsmanager/books/dev/smtp~true}
+  # dbConnection: ${ssm:/aws/reference/secretsmanager/books/dev/db}
+  smtp: ${ssm:/aws/reference/secretsmanager/books/dev/smtp}
   tempBookPrefix: temp
   topicName: books-${self:custom.stage}
   topicArn:
@@ -29,6 +30,7 @@ custom:
 provider:
   name: aws
   runtime: python3.8
+  lambdaHashingVersion: 20201221
 
   stage: ${self:custom.stage}
   region: ${opt:region, 'eu-central-1'}
@@ -38,24 +40,26 @@ provider:
 
   apiGateway:
     shouldStartNameWithService: true
+    apiKeys:
+      - name: test1
 
-  apiKeys:
-    - name: test1
-
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - sns:Publish
-      Resource:
-        !Ref booksTopic
-    - Effect: Allow
-      Action:
-        - s3:PutObject
-        - s3:PutObjectAcl
-        - s3:DeleteObject
-        - s3:GetObject
-      Resource:
-        !Join ["", [!GetAtt storage.Arn, "/*"]]
+  iam:
+    role:
+      name: kindle-books-sender-role
+      statements:
+      - Effect: Allow
+        Action:
+          - sns:Publish
+        Resource:
+          !Ref booksTopic
+      - Effect: Allow
+        Action:
+          - s3:PutObject
+          - s3:PutObjectAcl
+          - s3:DeleteObject
+          - s3:GetObject
+        Resource:
+          !Join ["", [!GetAtt storage.Arn, "/*"]]
 
   environment:
   # disabled for now
@@ -67,9 +71,9 @@ provider:
     BOOKS_TOPIC: ${self:custom.topicArn}
 
 package:
- exclude:
-   - tests
-   - appConfig.local.json
+  patterns:
+   - '!tests'
+   - '!appConfig.local.json'
 
 functions:
   add_book:
