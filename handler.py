@@ -27,7 +27,7 @@ def handle_add_book(event, context):
         "statusCode": 200,
         "headers": {
             "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,X-Amz-Security-Token,Authorization,X-Api-Key,X-Requested-With,Accept,Access-Control-Allow-Methods,Access-Control-Allow-Origin,Access-Control-Allow-Headers",
-            "Access-Control-Allow-Origin": "http://flibusta.is",
+            "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "OPTIONS,POST",
             "Access-Control-Allow-Credentials": False,
         }
@@ -132,11 +132,11 @@ if __name__ == "__main__":
         selection = input("Your choice: ")
         if selection == "1":
             ev = {
-                "body": "{\"bookSource\":\"http://flibusta.is/b/369935\", \"address\":\"saint.patricius@gmail.com\"}"
+                "body": "{\"bookSource\":\"https://flibusta.is/b/369935\", \"address\":\"saint.patricius@gmail.com\"}"
             }
             handle_add_book(ev, "")
         elif selection == "2":
-            book = Book(1, BookState.new, "http://flibusta.is/b/369935/mobi", "")
+            book = Book(1, BookState.new, "https://flibusta.is/b/369935/mobi", "")
             ev = simulateSqsMessage(book)
             handle_download_book(ev, None)
         elif selection == "3":
