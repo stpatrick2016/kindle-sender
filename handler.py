@@ -40,9 +40,9 @@ def handle_download_book(event, context):
         body = json.loads(record["body"])
         book: Book = Book.from_json(body["Message"])
         if book.state == BookState.new:
-            depot = Depot.from_http_to_s3(book.source, config.file_storage, f"{config.file_prefix}-{book.id}.mobi")
+            depot = Depot.from_http_to_s3(book.source, config.file_storage, f"{config.file_prefix}-{book.id}.epub")
             asyncio.run(depot.dispatch())
-            book.source = config.file_storage + "/" + f"{config.file_prefix}-{book.id}.mobi"
+            book.source = config.file_storage + "/" + f"{config.file_prefix}-{book.id}.epub"
 
             sm = StateManager(config.get_connection_string())
             book = sm.mark_downloaded(book)
@@ -63,7 +63,7 @@ def handle_send_book(event, context):
         if book.state == BookState.downloaded:
             depot = Depot.from_s3_to_mail(
                 config.file_storage,
-                f"{config.file_prefix}-{book.id}.mobi",
+                f"{config.file_prefix}-{book.id}.epub",
                 book.target,
                 config.smtp_server,
                 config.smtp_port,
@@ -136,11 +136,11 @@ if __name__ == "__main__":
             }
             handle_add_book(ev, "")
         elif selection == "2":
-            book = Book(1, BookState.new, "https://flibusta.is/b/369935/mobi", "")
+            book = Book(1, BookState.new, "https://flibusta.is/b/369935/epub", "")
             ev = simulateSqsMessage(book)
             handle_download_book(ev, None)
         elif selection == "3":
-            book = Book(1, BookState.downloaded, "arn:aws:s3:::books-download-dev/book.mobi",
+            book = Book(1, BookState.downloaded, "arn:aws:s3:::books-download-dev/book.epub",
                         "saint.patricius@gmail.com")
             ev = simulateSqsMessage(book)
             handle_send_book(ev, None)

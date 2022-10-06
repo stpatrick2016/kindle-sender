@@ -32,7 +32,7 @@ class SmtpDestination(Destination):
             part = MIMEBase("application", "octet-stream")
             part.set_payload(f.read())
             encoders.encode_base64(part)
-            part.add_header("Content-Disposition", "attachment; filename=book.mobi")
+            part.add_header("Content-Disposition", "attachment; filename=book.epub")
             message.attach(part)
 
         context = ssl.create_default_context()
