@@ -16,7 +16,7 @@ phases:
   build:
     commands:
       - python -m pytest --junitxml=tests/report.xml
-      - serverless deploy -v --stage=dev
+      - serverless deploy --verbose --param="stage=dev"
   post_build:
     commands:
       - echo Finished

@@ -3,11 +3,10 @@
 
 service: books
 configValidationMode: error
-variablesResolutionMode: 20210326
 
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
-frameworkVersion: '2'
+frameworkVersion: '3'
 
 custom:
   stage: ${opt:stage, 'dev'}
@@ -30,7 +29,6 @@ custom:
 provider:
   name: aws
   runtime: python3.8
-  lambdaHashingVersion: 20201221
 
   stage: ${self:custom.stage}
   region: ${opt:region, 'eu-central-1'}
