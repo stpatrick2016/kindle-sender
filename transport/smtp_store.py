@@ -25,7 +25,8 @@ class SmtpDestination(Destination):
             part = MIMEBase("application", "octet-stream")
             part.set_payload(f.read())
             encoders.encode_base64(part)
-            part.add_header("Content-Disposition", "attachment; filename=book.epub")
+            # don't specify the file name - then Amazon will automatically read from the epub header
+            part.add_header("Content-Disposition", "attachment; filename=.epub")
             message.attach(part)
 
         context = ssl.create_default_context()
