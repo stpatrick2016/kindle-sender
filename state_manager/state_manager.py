@@ -1,9 +1,11 @@
-import psycopg2
 import time
 
-from .models import Book
-from common.definitions.enums import BookState
+import psycopg2
+
 from common.configuration import Configuration
+from common.definitions.enums import BookState
+from .models import Book
+
 
 class StateManager:
     def __init__(self, connection: str):
@@ -28,7 +30,7 @@ class StateManager:
                 conn.commit()
                 cur.close()
                 print("Books was added successfully")
-            except(Exception, psycopg2.DatabaseError) as error:
+            except (Exception, psycopg2.DatabaseError) as error:
                 print(f"Failed to add book: {error}")
                 raise error
             finally:
@@ -36,9 +38,9 @@ class StateManager:
                     conn.close()
         else:
             print("Saving state is disabled")
-        
+
         return book
-    
+
     def mark_downloaded(self, book: Book) -> Book:
         print("Updating book status to downloaded")
         book.state = BookState.downloaded
@@ -65,13 +67,12 @@ class StateManager:
                 conn.commit()
                 cur.close()
                 print("Books was added successfully")
-            except(Exception, psycopg2.DatabaseError) as error:
+            except (Exception, psycopg2.DatabaseError) as error:
                 print(f"Failed to add book: {error}")
                 raise error
             finally:
                 if conn is not None:
                     conn.close()
-
 
     def _create_books_table(self):
         command = """
@@ -91,12 +92,9 @@ class StateManager:
             cur.close()
             conn.commit()
             print("Creation completed successfully")
-        except(Exception, psycopg2.DatabaseError) as error:
+        except (Exception, psycopg2.DatabaseError) as error:
             print(f"Unable to create table: {error}")
             raise error
         finally:
             if conn is not None:
                 conn.close()
-
-
-

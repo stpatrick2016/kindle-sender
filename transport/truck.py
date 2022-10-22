@@ -6,8 +6,9 @@ import typing
 
 from .exceptions import CargoEmptyError, CargoLostError
 
+
 class Cargo(ABC):
-    
+
     @contextmanager
     @abstractmethod
     def fill(self) -> any:
@@ -18,17 +19,20 @@ class Cargo(ABC):
     def empty(self) -> any:
         raise NotImplementedError
 
+
 class Source(ABC):
 
     @abstractmethod
     async def load(self, cargo: Cargo):
         pass
 
+
 class Destination(ABC):
-    
+
     @abstractmethod
     async def unload(self, cargo: Cargo):
         pass
+
 
 class Truck:
     def __init__(self, source: Source, destination: Destination):
@@ -41,9 +45,9 @@ class Truck:
         print("Unloading cargo...")
         await self._dest.unload(cargo)
 
-class GroundedCargo(Cargo):
 
-    _temp_file_path: str
+class GroundedCargo(Cargo):
+    _temp_file_path: typing.Optional[str]
 
     @contextmanager
     def fill(self) -> typing.BinaryIO:

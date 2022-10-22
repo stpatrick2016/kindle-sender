@@ -1,9 +1,10 @@
 from arnparse import arnparse
 
-from .truck import Cargo, Source, Destination, Truck, GroundedCargo
-from .s3_store import S3Destination, S3Source
 from .http_store import HttpSource
+from .s3_store import S3Destination, S3Source
 from .smtp_store import SmtpDestination
+from .truck import Cargo, Source, Destination, Truck, GroundedCargo
+
 
 class Depot:
     def __init__(self, cargo: Cargo, source: Source, destination: Destination):
