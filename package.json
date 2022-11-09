@@ -6,6 +6,6 @@
     "y18n": ">=4.0.1"
   },
   "devDependencies": {
-    "serverless-python-requirements": "^5.1.0"
+    "serverless-python-requirements": "^5.4.0"
   }
 }
